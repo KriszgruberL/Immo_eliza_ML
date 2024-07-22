@@ -1,3 +1,8 @@
 /preprocessing/draft.ipynb
 /.venv
-/myenv
+
+/data/numerical_data.csv
+/data/zipcode-belgium.json
+/data/final_dataset.json
+/data/clean_dataset.csv
+/preprocessing/draft.md

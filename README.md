@@ -1,4 +1,3 @@
-
 <p align="center">
     <br>
     <img alt="Made with Frogs" src="./assets/made-with-🐸.svg" style="border-radius:0.5rem">
@@ -14,44 +13,29 @@
     <br>
 </p>
 
+!!! Mettre les librairies en utilisant https://simpleicons.org/?q=seaborn et https://shields.io/badges
+
 ## 📚 Overview
 
-This project focuses on preprocessing and visualizing real estate data for Belgium. It includes scripts for cleaning data, converting categorical data to numerical, splitting datasets, and creating various visualizations. The data includes average rent and sale prices by region, which are used to generate insights and correlations.
-
-## PowerPoint of all graphs 
-[Gray Black Simple Real Estate Presentation.pdf](https://github.com/user-attachments/files/16195980/Gray.Black.Simple.Real.Estate.Presentation.pdf)
+Lorem ipsum
 
 ## 🕺 Collaborators
 Thank you for your contributions to this project : 
 
-- [servietsky0](https://github.com/servietsky0)
-- [Siegfried2021](https://github.com/Siegfried2021)
-- [KriszgruberL](https://github.com/KriszgruberL)
+- [Name](URL du git)
 
 ## 🚧 Project Structure
 ```
 
-preprocessing-visualization/
+nom_projet/
 ├── .vscode/
 │   ├── settings.json
-├── data/
-│   ├── visualization/
+├── dossier/
+│   ├── sous_dossier/
 │   │   ├── ...
-│   ├── clean_dataset.csv
-│   ├── final_dataset.json
-│   ├── numerical_data.csv
-│   └── zipcode-belgium.json
-├── preprocessing/
-│   ├── categorical_to_num_dict.py
-│   ├── clean_data.py
-│   ├── df_splitter.py
-│   └── preprocessing.py
+│   ├── ...
 ├── utils/
-│   ├── classifier.py
-│   ├── property.py
-│   └── scrapper.py
-├── visualizations/
-│   └── vizualisations.py
+│   ├── ...
 ├── main.py
 ├── README.md
 └── requirements.txt
@@ -61,8 +45,8 @@ preprocessing-visualization/
 
 1. **Clone the repository**:
     ```sh
-    git clone https://github.com/servietsky0/Preprocessing-Visualization.git
-    cd Preprocessing-Visualization
+    git clone url_git
+    cd nom_projet
     ```
 
 2. **Create a virtual environment**:
@@ -87,17 +71,13 @@ preprocessing-visualization/
 ---
 ## Visuals
 
-![Correlation Heatmap](data/visualization/correlation_heatmap.png)
-<br>
-<br>
-![Sale price by region and type](data/visualization/average_sale_price_by_region_and_combined_type.png)
+S'il y en a
 
 ---
 
 ### 👀 Classes Overview
 
 ---
-
 #### **main.py**
 The entry point of the application. It initializes data processing and visualization.
 
@@ -105,65 +85,28 @@ The entry point of the application. It initializes data processing and visualiza
 - `main()`: Main function to create instances of the processing classes and execute the processing steps.
 
 ---
-
 #### **utils/**
 Contains utility scripts for data reading and saving.
 
-- **save_read.py**:
-  - `read_to_df(file_path: str, extension: str) -> pd.DataFrame`: Reads the dataset from a file and initializes a DataFrame.
-  - `save_df_to_csv(df: pd.DataFrame, file_path: str) -> None`: Saves the DataFrame to a CSV file.
+- **fichier.py**:
+  - `fonction(file_path: str, extension: str) -> pd.DataFrame`: ....
 
 ---
 
-#### **preprocessing/**
+#### **dossier/**
 Contains scripts for preprocessing the dataset.
-
-- **categorical_to_num_dict.py**:
-  - `CategoricalNumDict`: Class to handle conversion of categorical data to numerical data.
-    - `__init__()`: Initializes the dictionary mappings.
-    - `get_dict(key)`: Retrieves the mapping dictionary for a given key.
-
-- **clean_data.py**:
-  - `CleanData`: Class to clean the dataset.
-    - `__init__(data_path: str, zip_path: str, save_path: str)`: Initializes with paths and settings.
-    - `process()`: Executes all processing steps.
-    - `fill_empty()`: Fills empty values in the DataFrame.
-    - `strip_blank()`: Strips leading and trailing whitespace from string columns.
-    - `drop_unusable()`: Drops duplicates and unnecessary columns, and removes rows with null values in critical columns.
-    - `check_drop_zip_code()`: Ensures postal codes are valid and drops invalid ones.
-    - `check_coherence()`: Ensures data coherence by adjusting certain column values.
-    - `get_summary_stats() -> pd.DataFrame`: Returns summary statistics of the DataFrame.
-    - `get_data() -> pd.DataFrame`: Returns the processed DataFrame.
-    - `get_column() -> pd.Index`: Returns the columns of the DataFrame.
-
-- **df_splitter.py**:
-  - `DataFrameSplitter`: Class to split a DataFrame into sub-DataFrames.
-    - `__init__()`: Initializes with default conditions and save paths.
-    - `split_and_save(df: pd.DataFrame) -> None`: Splits the DataFrame into sub-DataFrames based on conditions and saves them to CSV files.
-
-- **preprocessing.py**:
-  - `Preprocessing`: Class to handle preprocessing of data.
-    - `__init__(df)`: Initializes with a DataFrame.
-    - `transform_categorical(df: pd.DataFrame, dict_key: str, dicts: CategoricalNumDict) -> pd.DataFrame`: Transforms categorical data to numerical.
-    - `transform_all_categorical(df: pd.DataFrame, dicts: CategoricalNumDict) -> pd.DataFrame`: Transforms all categorical columns using dictionaries.
-    - `get_numerical_data() -> pd.DataFrame`: Returns the transformed numerical data.
+- **fichier.py**:
+  - `fonction(file_path: str, extension: str) -> pd.DataFrame`: ....
 
 ---
 
-#### **visualizations/**
+#### **dossier/**
 Contains scripts for creating visualizations.
 
-- **vizualisations.py**:
-  - `Visualizations`: Class to create various visualizations from the dataset.
+- **fichier.py**:
+  - `sous_dossier`: Class to create various visualizations from the dataset.
     - `__init__(data)`: Initializes with a DataFrame and prepares data for visualization.
-    - `combine_subtypes(subtype)`: Combines subtypes into 'House' and 'Flat'.
-    - `heat_map()`: Creates and saves a heatmap of feature correlations.
-    - `plot_totalarea_to_price()`: Plots and saves a bar chart of total living area vs price.
-    - `plot_average_sale_price()`: Plots and saves a bar chart of average sale price by region and property type.
-    - `plot_average_rent_price()`: Plots and saves a bar chart of average rent price by region and property type.
-    - `plot_average_sale_price_region()`: Plots and saves a bar chart of average sale price by region.
-    - `plot_average_rent_price_region()`: Plots and saves a bar chart of average rent price by region.
-    
+    - `fonction(subtype)`: ...
     ---
 
 #### **data/**
@@ -173,27 +116,20 @@ Contains data files used and generated by the scripts.
   - `average_rent_price_by_region.png`: Visualization of average rent prices by region.
   - `average_sale_price_by_region.png`: Visualization of average sale prices by region.
   - `correlation_heatmap.png`: Heatmap showing correlations between features.
-- `Data_house.xlsx`: Excel file with raw data on houses.
-- `clean_dataset.csv`: Cleaned dataset.
-- `final_dataset.json`: Final dataset in JSON format.
-- `numerical_data.csv`: Numerical data file.
-- `zipcode-belgium.json`: JSON file with zipcode data for Belgium.
+- `Data_house.xlsx`: ...
 
 ---
 #### **Other Files**
 
 - `.gitignore`: Specifies which files and directories to ignore in Git.
-- `Instructions.md`: Contains instructions for the project.
 - `README.md`: Provides an overview and instructions for the project.
 - `requirements.txt`: Lists required Python packages and their versions.
 
 ---
 
-
 ## 📃 Libraries documentation
 
-- [Seaborn](https://seaborn.pydata.org/index.html)
-- [Pandas](https://pandas.pydata.org/)
+- [Librarie](url_librarie)
 
 ## 🎯 Requirements
 
@@ -202,4 +138,3 @@ Contains data files used and generated by the scripts.
 - `seaborn==0.11.2`
 - `scikit-learn`
 - `setuptools`
-
