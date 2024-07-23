@@ -1,6 +1,6 @@
 <p align="center">
     <br>
-    <img alt="Made with Frogs" src="./assets/made-with-🐸.svg" style="border-radius:0.5rem">
+    <a href="https://github.com/KriszgruberL"> <img alt="Made with Frogs" src="./assets/made-with-🐸.svg" style="border-radius:0.5rem"></a>
     <br>
     <br><br>
     <a><img src="./assets/logo-modified.png" width="350"  /></a>
