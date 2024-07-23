@@ -1,22 +1,47 @@
 import pickle
 import pandas as pd
-from sklearn.discriminant_analysis import StandardScaler
-from sklearn.model_selection import GridSearchCV, RepeatedKFold, cross_val_score, train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_absolute_error
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-from sklearn.tree import DecisionTreeRegressor
-from xgboost import XGBRegressor
+from sklearn.ensemble import RandomForestRegressor
+from datetime import datetime
 
 def load_preprocessed_data(filepath):
+    """
+    Load preprocessed data from a pickle file.
+
+    Parameters:
+    filepath (str): The path to the pickle file containing the preprocessed data.
+
+    Returns:
+    pd.DataFrame: The preprocessed data.
+    """
     with open(filepath, "rb") as file:
         return pickle.load(file)
 
 def prepare_data(df):
+    """
+    Prepare the data for training by separating features and target variable.
+
+    Parameters:
+    df (pd.DataFrame): The input data containing features and target variable.
+
+    Returns:
+    tuple: A tuple containing the features (X) and the target variable (y).
+    """
     X = df.drop(columns=["Price"], axis=1)
     y = df["Price"]
     return X, y
 
 def print_score(y_test, y_pred, model_name):
+    """
+    Print the performance scores of the model.
+
+    Parameters:
+    y_test (array-like): The true values of the target variable.
+    y_pred (array-like): The predicted values of the target variable.
+    model_name (str): The name of the model.
+    """
     mae = mean_absolute_error(y_true=y_test, y_pred=y_pred)
     r2 = r2_score(y_true=y_test, y_pred=y_pred)
 
@@ -27,25 +52,18 @@ def print_score(y_test, y_pred, model_name):
           """)
 
 def main():
-    from datetime import datetime
-    from xgboost import XGBRFRegressor
-    import xgboost as xgb
-    
+    """
+    The main function to load data, prepare data, train the model, and evaluate the model.
+    """
     start_time = datetime.now()
     
     filepath = "../data/preprocessed_df.pkl"
     preprocessed_df = load_preprocessed_data(filepath)
 
-    # Prepare the data
     X, y = prepare_data(preprocessed_df)
 
-    # Initialize the regressor
     regressor = RandomForestRegressor(random_state=0, n_jobs=-1)
 
-    # # Perform cross-validation
-    # cross_val_scores = cross_val_score(regressor, X, y, cv=10)
-    # print("Cross-validation scores for each fold:", cross_val_scores)
-    
     # Standardize features
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
@@ -65,4 +83,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
