@@ -8,45 +8,40 @@
     <br>
     <br>
     <a href="https://www.python.org/downloads/release/python-3120/"><img alt="Python 3.12" src="https://img.shields.io/badge/Python%203.12-python?style=for-the-badge&logo=python&logoColor=F8E71C&labelColor=427EC4&color=2680D1" style="border-radius:0.5rem"></a>
-    <a href="https://www.crummy.com/software/BeautifulSoup/"><img alt="Seaborn" src="https://img.shields.io/badge/Seaborn-Seaborn?style=for-the-badge&logo=seaborn&color=%236666FF" style="border-radius:0.5rem"></a>
+    <a href="https://scikit-learn.org/stable/user_guide.html"><img alt="Sklearn" src="hhttps://img.shields.io/badge/sklearn%20-%20sklearn?style=for-the-badge&logo=sklearn&color=blue" style="border-radius:0.5rem"></a>
     <a href="https://pandas.pydata.org/docs/"><img alt="Pandas" src="https://img.shields.io/badge/Pandas-Pandas?style=for-the-badge&logo=pandas&color=61B3DD" style="border-radius:0.5rem"></a>
     <br>
 </p>
 
-!!! Mettre les librairies en utilisant https://simpleicons.org/?q=seaborn et https://shields.io/badges
 
 ## 📚 Overview
 
-Lorem ipsum
-
-## 🕺 Collaborators
-Thank you for your contributions to this project : 
-
-- [Name](URL du git)
+This project focuses on preprocessing and analyzing real estate data to predict property prices. The preprocessing pipeline includes data filtering, encoding, imputations, and scaling to prepare the data for machine learning models. The main model used is a RandomForestRegressor, but the pipeline is designed to be flexible for other regressors as well.
 
 ## 🚧 Project Structure
 ```
-
 nom_projet/
 ├── .vscode/
 │   ├── settings.json
-├── dossier/
-│   ├── sous_dossier/
-│   │   ├── ...
-│   ├── ...
-├── utils/
-│   ├── ...
-├── main.py
+├── data/
+│   ├── final_dataset.json
+│   ├── zipcode-belgium.json
+│   ├── preprocessed_df.pkl
+├── preprocessing/
+│   ├── modeling.py
+│   ├── preprocessing.py
+│   ├── draft2.ipynb
 ├── README.md
 └── requirements.txt
+└── Immo_Eliza.pptx
 ```
 
 ## ⚒️ Setup
 
 1. **Clone the repository**:
     ```sh
-    git clone url_git
-    cd nom_projet
+    https://github.com/KriszgruberL/Immo_eliza_ML.git
+    cd Immo_eliza_ML
     ```
 
 2. **Create a virtual environment**:
@@ -63,60 +58,62 @@ nom_projet/
 
 ## ⚙️ Usage
 
-1. To run the entire preprocessing and visualization pipeline, execute the `main.py` script:
+1. To run the preprocessing, execute the `preprocessing.py` script:
     ```sh
-    python main.py
+    python preprocessing.py
     ```
 
----
-## Visuals
+1. To run the modeling, execute the `modeling.py` script:
+    ```sh
+    python modeling.py
+    ```
 
-S'il y en a
-
----
 
 ### 👀 Classes Overview
 
 ---
-#### **main.py**
-The entry point of the application. It initializes data processing and visualization.
+#### **modeling.py**
+Contain the modeling features
 
 **Functions:**
-- `main()`: Main function to create instances of the processing classes and execute the processing steps.
+- `load_preprocessed_data`: This function loads the preprocessed data from a pickle file. 
 
----
-#### **utils/**
-Contains utility scripts for data reading and saving.
+- `prepare_data`: This function separates the features and the target variable from the DataFrame. 
 
-- **fichier.py**:
-  - `fonction(file_path: str, extension: str) -> pd.DataFrame`: ....
+- `print_score`: This function prints the performance metrics of the model. 
+- `main`: This function is the main entry point of the script. It loads the data, prepares it, trains the model, and evaluates it. 
 
----
+#### **preprocessing.py**
+Contain the preprocessing features
 
-#### **dossier/**
-Contains scripts for preprocessing the dataset.
-- **fichier.py**:
-  - `fonction(file_path: str, extension: str) -> pd.DataFrame`: ....
+**Functions:**
+- ``filter_data``: This function filters the data based on specific conditions, such as price, construction year, garden area, and counts of showers and toilets.
 
----
+- ``encode_binary_value``: This function encodes binary values for specific columns. 
 
-#### **dossier/**
-Contains scripts for creating visualizations.
+- ``impute_and_encode``: This function imputes missing values and encodes categorical variables. 
 
-- **fichier.py**:
-  - `sous_dossier`: Class to create various visualizations from the dataset.
-    - `__init__(data)`: Initializes with a DataFrame and prepares data for visualization.
-    - `fonction(subtype)`: ...
-    ---
+- ``map_values``: This function maps values for specific columns to binary values. 
+
+- ``limit_number_of_facades``: This function limits the number of facades to a maximum of 4. 
+
+- ``fill_na``: This function fills missing values for specific columns with default values. 
+
+- ``knn_impute``: This function imputes missing values using KNN imputation. 
+
+- ``drop_categorical``: This function drops categorical columns. 
+
+- `preprocess_pipeline`: This function creates a preprocessing pipeline. 
+
+- `main`: This function is the main entry point of the script. It loads the data, applies preprocessing, and saves the preprocessed data. 
+
 
 #### **data/**
 Contains data files used and generated by the scripts.
 
-- **visualization/**: Directory containing visualization images.
-  - `average_rent_price_by_region.png`: Visualization of average rent prices by region.
-  - `average_sale_price_by_region.png`: Visualization of average sale prices by region.
-  - `correlation_heatmap.png`: Heatmap showing correlations between features.
-- `Data_house.xlsx`: ...
+- `final_dataset.json`: Data scrapped from ImmoWeb.be
+- `zipcode-belgium.json`: Valid zip code in Belgium
+- `preprocessed_df.pkl`: Preprocessing saved as a pickle file
 
 ---
 #### **Other Files**
@@ -124,12 +121,10 @@ Contains data files used and generated by the scripts.
 - `.gitignore`: Specifies which files and directories to ignore in Git.
 - `README.md`: Provides an overview and instructions for the project.
 - `requirements.txt`: Lists required Python packages and their versions.
+- `Immo_Eliza_pp.pptx`: Short powerpoint
 
 ---
 
-## 📃 Libraries documentation
-
-- [Librarie](url_librarie)
 
 ## 🎯 Requirements
 
