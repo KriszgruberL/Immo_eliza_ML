@@ -4,4 +4,3 @@
 data/preprocessed_df.pkl
 data/model.pkl
 preprocessing/draft2.ipynb
-data/final_dataset.json
