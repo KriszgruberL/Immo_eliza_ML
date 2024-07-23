@@ -8,7 +8,7 @@
     <br>
     <br>
     <a href="https://www.python.org/downloads/release/python-3120/"><img alt="Python 3.12" src="https://img.shields.io/badge/Python%203.12-python?style=for-the-badge&logo=python&logoColor=F8E71C&labelColor=427EC4&color=2680D1" style="border-radius:0.5rem"></a>
-    <a href="https://scikit-learn.org/stable/user_guide.html"><img alt="Sklearn" src="hhttps://img.shields.io/badge/sklearn%20-%20sklearn?style=for-the-badge&logo=sklearn&color=blue" style="border-radius:0.5rem"></a>
+    <a href="https://scikit-learn.org/stable/user_guide.html"><img alt="Sklearn" src="https://img.shields.io/badge/sklearn%20-%20sklearn?style=for-the-badge&logo=sklearn&color=blue" style="border-radius:0.5rem"></a>
     <a href="https://pandas.pydata.org/docs/"><img alt="Pandas" src="https://img.shields.io/badge/Pandas-Pandas?style=for-the-badge&logo=pandas&color=61B3DD" style="border-radius:0.5rem"></a>
     <br>
 </p>
