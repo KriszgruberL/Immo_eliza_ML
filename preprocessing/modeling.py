@@ -1,3 +1,4 @@
+import json
 import pickle
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -33,22 +34,28 @@ def prepare_data(df):
     y = df["Price"]
     return X, y
 
-def print_score(y_test, y_pred, model_name):
+def print_score(y_test, y_pred, model_name, target_scaler):
     """
-    Print the performance scores of the model.
+    Print the performance scores of the model after inverse transforming the predictions and test values.
 
     Parameters:
-    y_test (array-like): The true values of the target variable.
-    y_pred (array-like): The predicted values of the target variable.
+    y_test (array-like): The true values of the target variable (scaled).
+    y_pred (array-like): The predicted values of the target variable (scaled).
     model_name (str): The name of the model.
+    target_scaler (StandardScaler): The scaler used for the target variable during training.
     """
-    mae = mean_absolute_error(y_true=y_test, y_pred=y_pred)
-    r2 = r2_score(y_true=y_test, y_pred=y_pred)
+    # Inverse transform the scaled predictions and test values to original scale
+    y_pred_original = target_scaler.inverse_transform(y_pred.reshape(-1, 1))
+    y_test_original = target_scaler.inverse_transform(y_test)
+
+    # Calculate the Mean Absolute Error (MAE) and R-squared (R²) on the original scale
+    mae = mean_absolute_error(y_test_original, y_pred_original)
+    r2 = r2_score(y_test_original, y_pred_original)
 
     print(f"""
           +------------Score for {model_name}------------+
-            Mean Absolute Error: {mae}
-            R-squared: {r2}
+            Mean Absolute Error (Original Scale): {mae}
+            R-squared (Original Scale): {r2}
           """)
 
 def main():
@@ -57,17 +64,31 @@ def main():
     """
     start_time = datetime.now()
     
-    filepath = "../data/preprocessed_df.pkl"
+    filepath = "./data/preprocessed_df.pkl"
     preprocessed_df = load_preprocessed_data(filepath)
+    
+    print(preprocessed_df.dtypes)
 
     X, y = prepare_data(preprocessed_df)
+    
+    feature_names = X.columns.tolist()
+    # Saving feature names for future reference
+    with open("./data/feature_names.json", "w") as f:
+        json.dump(feature_names, f)
 
     regressor = RandomForestRegressor(random_state=0, n_jobs=-1)
 
-    # Standardize features
-    scaler = StandardScaler()
-    X = scaler.fit_transform(X)
+    # Separate scalers for features and target
+    feature_scaler = StandardScaler()
+    target_scaler = StandardScaler()
 
+    # Standardize features
+    X = feature_scaler.fit_transform(X)
+
+    # # Reshape y to 2D for scaling
+    y = y.values.reshape(-1, 1)
+    y = target_scaler.fit_transform(y)
+    
     # Split the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -75,11 +96,18 @@ def main():
     model = regressor.fit(X_train, y_train)
 
     # Predict and evaluate
-    y_pred = regressor.predict(X_test)
-    print_score(y_test, y_pred, "RandomForestRegressor")
+    y_pred_scaled = model.predict(X_test)
+    print_score(y_test, y_pred_scaled, "RandomForestRegressor", target_scaler)
     
-    with open("../data/model.pkl", "wb") as f:
+    with open("./data/model.pkl", "wb") as f:
         pickle.dump(model, f)
+        
+    with open("./data/feature_scaler.pkl", "wb") as scaler_file:
+        pickle.dump(feature_scaler, scaler_file)    
+        
+    with open("./data/target_scaler.pkl", "wb") as target_scaler_file:
+        pickle.dump(target_scaler, target_scaler_file)
+    
     
     end_time = datetime.now()
     print('Duration: {}'.format(end_time - start_time))

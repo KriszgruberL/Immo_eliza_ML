@@ -1,7 +1,8 @@
 import datetime
+import json
 import pandas as pd
 from sklearn.impute import KNNImputer, SimpleImputer
-from sklearn.preprocessing import OrdinalEncoder, FunctionTransformer
+from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, FunctionTransformer
 from sklearn.pipeline import Pipeline
 import pickle
 
@@ -19,12 +20,11 @@ def filter_data(df : pd.DataFrame) -> pd.DataFrame:
     df = df.loc[
         (df["Price"] < 15000000) &
         ((df["ConstructionYear"] <= year_threshold) | pd.isna(df["ConstructionYear"])) 
-    #     ~((df["GardenArea"] > 0) & (df["Garden"] == 0)) &
-    #     (df["ShowerCount"] < 30) &
-    #     (df["ToiletCount"] < 50)
     ]
-    df = df.drop(["Fireplace", "Furnished", "PropertyId", "Region", "Country", "SubtypeOfProperty", "Url", "MonthlyCharges", "RoomCount"], axis=1)
+    
+    df = df.drop(["Fireplace", "Furnished", "PropertyId","Country", "SubtypeOfProperty", "Url", "MonthlyCharges", "RoomCount"], axis=1)
     df = df.dropna(subset=['Locality', 'District', "StateOfBuilding", "LivingArea"], how='all')
+    df = df.dropna(subset=['TypeOfSale', "TypeOfProperty", "Province", "Region"])
     df = df.drop_duplicates()
     exclude_annuity = ["annuity_monthly_amount", "annuity_without_lump_sum", "annuity_lump_sum", "homes_to_build"]
     df = df[~df["TypeOfSale"].isin(exclude_annuity)]
@@ -43,6 +43,7 @@ def encode_binary_value(df : pd.DataFrame) -> pd.DataFrame:
     df = df.loc[df['TypeOfSale'].isin(['residential_sale', 'residential_monthly_rent'])].copy()
     df.loc[:, "TypeOfSale"] = df["TypeOfSale"].apply(lambda x: 0 if x == "residential_sale" else 1)
     df.loc[:, "TypeOfProperty"] = df["TypeOfProperty"].apply(lambda x: 0 if x == 1 else 1)
+    df["TypeOfSale"] = df["TypeOfSale"].astype(float)
     return df
 
 def impute_and_encode(df : pd.DataFrame) -> pd.DataFrame:
@@ -67,6 +68,7 @@ def impute_and_encode(df : pd.DataFrame) -> pd.DataFrame:
     df.loc[:, 'StateOfBuilding'] = simple_imputer.fit_transform(df[['StateOfBuilding']])
     ordinal_encoder = OrdinalEncoder(categories=[['Unknown', 'AS_NEW', 'JUST_RENOVATED', 'GOOD', 'TO_RESTORE', 'TO_RENOVATE', 'TO_BE_DONE_UP']])
     df.loc[:, "StateOfBuilding"] = ordinal_encoder.fit_transform(df[["StateOfBuilding"]])
+    
     return df
 
 def map_values(df : pd.DataFrame) -> pd.DataFrame:
@@ -114,6 +116,26 @@ def fill_na(df : pd.DataFrame) -> pd.DataFrame:
     df.loc[(df["Garden"] == 0) & (df["GardenArea"].isna()), "GardenArea"] = 0
     return df
 
+def hot_encode(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    One-hot encodes the 'Province' and 'Region' columns of the given DataFrame.
+
+    Parameters:
+        df (pd.DataFrame): The DataFrame to be one-hot encoded.
+
+    Returns:
+        pd.DataFrame: The DataFrame with the 'Province' and 'Region' columns one-hot encoded.
+    """
+
+    encoder = OneHotEncoder(sparse_output=False)
+    encoded_array = encoder.fit_transform(df[['Region', 'Province']])
+    df_encoded = pd.DataFrame(encoded_array, columns=encoder.get_feature_names_out(['Region', 'Province']))
+    df_encoded = df_encoded.astype(int)
+    df = pd.concat([df.reset_index(drop=True), df_encoded.reset_index(drop=True)], axis=1)
+
+    df = df.drop(['Region', 'Province'], axis=1)
+    return df
+
 def knn_impute(df : pd.DataFrame) -> pd.DataFrame:
     """
     Impute missing values using KNN imputation.
@@ -141,10 +163,11 @@ def drop_categorical(df : pd.DataFrame) -> pd.DataFrame:
     Returns:
     pd.DataFrame: The data without categorical columns.
     """
-    df.drop(["Locality", "District", "Province"], axis=1, inplace=True)
+    df.drop(["Locality", "District"], axis=1, inplace=True)
     return df
 
-def preprocess_pipeline() -> None:
+
+def preprocess_pipeline() -> Pipeline:
     """
     Create a preprocessing pipeline.
 
@@ -153,13 +176,14 @@ def preprocess_pipeline() -> None:
     """
     return Pipeline([
         ('filter_data', FunctionTransformer(filter_data)),
-        ('encode_binary_value', FunctionTransformer(encode_binary_value)),
-        ('impute_and_encode', FunctionTransformer(impute_and_encode)),
         ('map_values', FunctionTransformer(map_values)),
-        ('limit_number_of_facades', FunctionTransformer(limit_number_of_facades)),
-        ('fill_na', FunctionTransformer(fill_na)),
-        ('knn_impute', FunctionTransformer(knn_impute)),
-        ('drop_categorical', FunctionTransformer(drop_categorical))
+        ('encode_binary_value', FunctionTransformer(encode_binary_value)),
+        ('impute_and_encode', FunctionTransformer(impute_and_encode)),  # Handles specific imputations and encodings
+        ('fill_na', FunctionTransformer(fill_na)),  # General missing value handling
+        ('limit_number_of_facades', FunctionTransformer(limit_number_of_facades)),  # Specific transformation
+        ('knn_impute', FunctionTransformer(knn_impute)),  # Further imputation
+        ('hot_encode', FunctionTransformer(hot_encode)),  # One-hot encoding
+        ('drop_categorical', FunctionTransformer(drop_categorical)),  # Remove original categorical columns
     ])
 
 def main() -> None:
@@ -169,7 +193,7 @@ def main() -> None:
     start_time = datetime.datetime.now()
 
     # Load the data
-    filename = "../data/final_dataset.json"
+    filename = "data/final_dataset.json"
     df = pd.read_json(filename)
     df = df.copy()
 
@@ -177,11 +201,16 @@ def main() -> None:
     pipeline = preprocess_pipeline()
     preprocessed_df = pipeline.fit_transform(df)
     
+    preprocessed_df.to_csv("data/preprocessed_df.csv", index=False)
+
+    print(preprocessed_df.dtypes)
+    
     # Save the preprocessed data
-    with open("../data/preprocessed_df.pkl", "wb") as f:
+    with open("data/preprocessed_df.pkl", "wb") as f:
         pickle.dump(preprocessed_df, f)
         
     end_time = datetime.datetime.now()
+
     print('Duration: {}'.format(end_time - start_time))
 
 if __name__ == "__main__":

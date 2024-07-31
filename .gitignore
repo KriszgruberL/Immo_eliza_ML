@@ -1,6 +1,6 @@
 
 /.venv
 
-data/preprocessed_df.pkl
-data/model.pkl
-preprocessing/draft2.ipynb
+*.ipynb
+*.pkl
+data/final_dataset.json
