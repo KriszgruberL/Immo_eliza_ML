@@ -13,11 +13,17 @@ st.title("House Price Prediction")
 if "submitted" not in st.session_state:
     st.session_state.submitted = False
 
+if "block_error" not in st.session_state:
+    st.session_state.block_error = "There is empty required values in the form"
+
+if "block_error_bool" not in st.session_state:
+    st.session_state.block_error_bool = False
 
 # # Callback function to handle submission
 def handle_submit():
     st.session_state.submitted = True
     st.session_state.show_inputs = False
+    
 
 
 peb_string = ["A++", "A+", "A", "B", "C", "D", "E", "F", "G"]
@@ -63,7 +69,7 @@ def load_model_and_scalers():
     # Load the pre-trained model and scalers
     with open("data/model.pkl", "rb") as file:
         model = pickle.load(file)
-    with open("data/scaler.pkl", "rb") as scaler_file:
+    with open("data/feature_scaler.pkl", "rb") as scaler_file:
         feature_scaler = pickle.load(scaler_file)
     with open("data/target_scaler.pkl", "rb") as target_scaler_file:
         target_scaler = pickle.load(target_scaler_file)
@@ -106,6 +112,8 @@ def prepare_data_for_prediction(region, province, feature_names, data):
 
     return prepared_data
 
+
+
 # Form container
 with st.container():
     with st.container(border=True):
@@ -113,22 +121,23 @@ with st.container():
         col1, col2 = st.columns(2)
         with col1:
             region = st.selectbox(
-                "Select the region",
+                "Select the region*",
                 options=["Brussels", "Flanders", "Wallonia"],
                 index=None,
                 key="region",
             )
+            st.markdown("<p style='color:pink; font-size:small'>*Required field</p>", unsafe_allow_html=True)
         with col2:
             if region == "Brussels":
                 province = st.selectbox(
-                    "Select the province",
+                    "Select the province*",
                     options=["Brussels"],
                     index=0,
                     key="province",
                 )
             elif region == "Flanders":
                 province = st.selectbox(
-                    "Select the province",
+                    "Select the province*",
                     options=[
                         "Antwerp",
                         "Flemish Brabant",
@@ -141,7 +150,7 @@ with st.container():
                 )
             elif region == "Wallonia":
                 province = st.selectbox(
-                    "Select the province",
+                    "Select the province*",
                     options=[
                         "Walloon Brabant",
                         "Hainaut",
@@ -152,18 +161,21 @@ with st.container():
                     index=None,
                     key="province",
                 )
+            if region: 
+                st.markdown("<p style='color:pink; font-size:small'>*Required fields</p>", unsafe_allow_html=True)
         st.divider()
 
         col1, col2 = st.columns(2)
         with col1:
             property_type = st.radio(
-                "Select the type of property",
+                "Select the type of property*",
                 ["House", "Apartment"],
                 index=None,
                 key="type_property",
                 horizontal=True,
             )
-
+            st.markdown("<p style='color:pink; font-size:small'>*Required field</p>", unsafe_allow_html=True)
+            
             year = st.number_input(
                 "Enter the construction year (1600 - 2040)",
                 min_value=1600,
@@ -184,12 +196,13 @@ with st.container():
 
         with col2:
             sale_type = st.radio(
-                "Select the type of sale",
+                "Select the type of sale*",
                 ["For Sale", "For Rent"],
                 index=None,
                 key="type_sale",
                 horizontal=True,
             )
+            st.markdown("<p style='color:pink; font-size:small'>*Required field</p>", unsafe_allow_html=True)
             zip_code = st.number_input(
                 "Enter the postal code",
                 min_value=1000,
@@ -199,20 +212,23 @@ with st.container():
                 help="Enter a value between 1000 and 9992 (Belgium zip codes)",
             )
             state_building = st.selectbox(
-                "Select the state of the building",
+                "Select the state of the building*",
                 options=range(1, len(state_string) + 1),
                 index=None,
                 key="state_building",
                 format_func=state_stringify,
+                help="Select the state of the building - Required field",
             )
-
+            st.markdown("<p style='color:pink; font-size:small'>*Required field</p>", unsafe_allow_html=True)
+        st.divider()
         living_area = st.number_input(
-            "Enter the living area (in m²)",
+            "Enter the living area (in m²)*",
             min_value=1,
             value=1,
             format="%d",
-            help="Enter a value greater than 0",
+            help="Enter a value greater than 0 - Required field",
         )
+        
         plot_area = st.number_input(
             "Enter the plot area (in m²)",
             min_value=0,
@@ -279,40 +295,41 @@ with st.container():
             )
 
     with st.container(border=True):
-        st.write("Outside Details")
-        garden = st.radio(
-            "Does the house have a garden?",
-            ["Yes", "No"],
-            index=None,
-            key="garden",
-            horizontal=True,
-        )
-        # Dynamic garden area input
-        if garden == "Yes":
-            garden_area = st.number_input(
-                "Garden Area (in m²)", min_value=1, format="%d", value=None
+            st.write("Outside Details")
+            garden = st.radio(
+                "Does the house have a garden?",
+                ["Yes", "No"],
+                index=None,
+                key="garden",
+                horizontal=True,
             )
-        else:
-            garden_area = 0
+            # Dynamic garden area input
+            if garden == "Yes":
+                garden_area = st.number_input(
+                    "Garden Area (in m²)", min_value=1, format="%d", value=None
+                )
+            else:
+                garden_area = 0
 
-        pool = st.radio(
-            "Does the house have a swimming pool?",
-            ["Yes", "No"],
-            index=None,
-            key="pool",
-            horizontal=True,
-        )
-        terrace = st.radio(
-            "Does the house have a terrace?",
-            ["Yes", "No"],
-            index=None,
-            key="terrace",
-            horizontal=True,
-        )
+            pool = st.radio(
+                "Does the house have a swimming pool?",
+                ["Yes", "No"],
+                index=None,
+                key="pool",
+                horizontal=True,
+            )
+            terrace = st.radio(
+                "Does the house have a terrace?",
+                ["Yes", "No"],
+                index=None,
+                key="terrace",
+                horizontal=True,
+            )
 
 
 # Button for submitting the form
-if st.button("Predict !"):
+if st.button("Predict !", on_click=handle_submit):
+
     st.session_state.submitted = True
     progress_bar()
     # Load the pre-trained model and scalers
@@ -342,10 +359,10 @@ if st.button("Predict !"):
     }
 
     data = prepare_data_for_prediction(region, province, feature_names, data)
-    
-    st.write(data)
+
     # Create a DataFrame for the input data
     df = pd.DataFrame([data], columns=feature_names)
+    
 
     # Ensure all columns are of the correct type
     df = df.astype(
@@ -385,18 +402,13 @@ if st.button("Predict !"):
             "Province_West Flanders": "int",
         }
     )
-    ### DEBUG
-    st.write("FUCK THIS SHIT:",df)
 
     # Scale the features
     X = feature_scaler.transform(df)
-
+    
     # Predict using the model
     predictions_scaled = model.predict(X)
 
-    # Debug: Print the scaled predictions
-    st.write("Scaled Predictions:")
-    st.write(predictions_scaled)
 
     predictions_original = target_scaler.inverse_transform(
         predictions_scaled.reshape(-1, 1)
@@ -404,6 +416,4 @@ if st.button("Predict !"):
 
     # Display the predicted price
     st.write(f"Predicted price: {predictions_original.flatten()[0]:.2f} €")
-        
-
 

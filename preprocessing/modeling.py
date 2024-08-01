@@ -68,6 +68,7 @@ def main():
     preprocessed_df = load_preprocessed_data(filepath)
     
     print(preprocessed_df.dtypes)
+    # print(preprocessed_df.columns)
 
     X, y = prepare_data(preprocessed_df)
     
@@ -83,6 +84,7 @@ def main():
     target_scaler = StandardScaler()
 
     # Standardize features
+    print(X.columns)
     X = feature_scaler.fit_transform(X)
 
     # # Reshape y to 2D for scaling
