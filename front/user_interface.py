@@ -39,6 +39,13 @@ st.markdown(
     .stButton button:active {
         box-shadow: inset -5px -5px 10px 0px rgba(28,28,28,0.5);
     }
+    
+    .custom-container {
+        border: 1px solid var(--accent-color);
+        border-radius: 1rem;
+        padding: 1rem;
+    }
+    
     .title {
         text-align:center; 
         border: 2px solid var(--accent-color);
@@ -171,7 +178,7 @@ def prepare_data_for_prediction(region, province, feature_names, data):
 
 # Form container
 if not st.session_state.submitted:
-    with st.container(border=True):
+    with st.container():
         st.write("Property Details")
         col1, col2 = st.columns(2)
         with col1:
@@ -295,7 +302,7 @@ if not st.session_state.submitted:
             "Select the PEB value",
             options=range(1, len(peb_string) + 1),
             key="peb",
-            value=5,
+            value=st.session_state.peb,
             format_func=peb_stringify,
         )
 
@@ -306,8 +313,8 @@ if not st.session_state.submitted:
             key="flood",
             horizontal=True,
         )
-
-    with st.container(border=True):
+        
+    with st.container():
         st.write("Inside Details")
         col1, col2 = st.columns(2)
         with col1:
@@ -349,7 +356,7 @@ if not st.session_state.submitted:
                 help="Enter a numerical value",
             )
 
-    with st.container(border=True):
+    with st.container():
         st.write("Outside Details")
         garden = st.radio(
             "Does the house have a garden?",
