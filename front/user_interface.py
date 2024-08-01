@@ -4,26 +4,33 @@ import pickle
 import numpy as np
 import streamlit as st
 import pandas as pd
+import time
 
 # Title of the app
 st.title("House Price Prediction")
 
-# Initialize session state variables
+none_features = ["bed", "shower", "toilet", "bath", "garden_area", "year", "nb_facade", "zip_code", "kitchen", "state_building", "living_area", "plot_area", "flood"]
+empty_feature = ["property_type", "sale_type", "garden"]
 
+for feature in none_features:
+    if feature not in st.session_state:
+        st.session_state[feature] = None
+
+for feature in empty_feature:
+    if feature not in st.session_state:
+        st.session_state[feature] = None
+
+# Initialize session state variables
+if "peb" not in st.session_state:
+    st.session_state.peb = 5
+    
 if "submitted" not in st.session_state:
     st.session_state.submitted = False
-
-if "block_error" not in st.session_state:
-    st.session_state.block_error = "There is empty required values in the form"
-
-if "block_error_bool" not in st.session_state:
-    st.session_state.block_error_bool = False
 
 # # Callback function to handle submission
 def handle_submit():
     st.session_state.submitted = True
-    st.session_state.show_inputs = False
-    
+    progress_bar()
 
 
 peb_string = ["A++", "A+", "A", "B", "C", "D", "E", "F", "G"]
@@ -42,7 +49,7 @@ def peb_stringify(i: int = 0) -> str:
 def state_stringify(i: int = 0) -> str:
     return state_string[i - 1]
 
-import time
+
 
 def progress_bar():
     """
@@ -55,7 +62,8 @@ def progress_bar():
         time.sleep(0.01)
         my_bar.progress(percent_complete + 1, text=progress_text)
     my_bar.empty()
-    
+
+ 
 def load_model_and_scalers():
     """
     Load the pre-trained model, scalers, and feature names from the specified files.
@@ -113,9 +121,8 @@ def prepare_data_for_prediction(region, province, feature_names, data):
     return prepared_data
 
 
-
 # Form container
-with st.container():
+if not st.session_state.submitted:
     with st.container(border=True):
         st.write("Property Details")
         col1, col2 = st.columns(2)
@@ -128,14 +135,14 @@ with st.container():
             )
             st.markdown("<p style='color:pink; font-size:small'>*Required field</p>", unsafe_allow_html=True)
         with col2:
-            if region == "Brussels":
+            if st.session_state.region == "Brussels":
                 province = st.selectbox(
                     "Select the province*",
                     options=["Brussels"],
                     index=0,
                     key="province",
                 )
-            elif region == "Flanders":
+            elif st.session_state.region == "Flanders":
                 province = st.selectbox(
                     "Select the province*",
                     options=[
@@ -148,7 +155,7 @@ with st.container():
                     index=None,
                     key="province",
                 )
-            elif region == "Wallonia":
+            elif st.session_state.region == "Wallonia":
                 province = st.selectbox(
                     "Select the province*",
                     options=[
@@ -295,71 +302,83 @@ with st.container():
             )
 
     with st.container(border=True):
-            st.write("Outside Details")
-            garden = st.radio(
-                "Does the house have a garden?",
-                ["Yes", "No"],
-                index=None,
-                key="garden",
-                horizontal=True,
+        st.write("Outside Details")
+        garden = st.radio(
+            "Does the house have a garden?",
+            ["Yes", "No"],
+            index=None,
+            key="garden",
+            horizontal=True,
+        )
+        # Dynamic garden area input
+        if st.session_state.garden == "Yes":
+            garden_area = st.number_input(
+                "Garden Area (in m²)", min_value=1, format="%d", value=None
             )
-            # Dynamic garden area input
-            if garden == "Yes":
-                garden_area = st.number_input(
-                    "Garden Area (in m²)", min_value=1, format="%d", value=None
-                )
-            else:
-                garden_area = 0
+        else:
+            garden_area = 0
 
-            pool = st.radio(
-                "Does the house have a swimming pool?",
-                ["Yes", "No"],
-                index=None,
-                key="pool",
-                horizontal=True,
-            )
-            terrace = st.radio(
-                "Does the house have a terrace?",
-                ["Yes", "No"],
-                index=None,
-                key="terrace",
-                horizontal=True,
-            )
+        pool = st.radio(
+            "Does the house have a swimming pool?",
+            ["Yes", "No"],
+            index=None,
+            key="pool",
+            horizontal=True,
+        )
+        terrace = st.radio(
+            "Does the house have a terrace?",
+            ["Yes", "No"],
+            index=None,
+            key="terrace",
+            horizontal=True,
+        )
 
+    # Button for submitting the form
+    st.markdown("""
+    <style>
+    div.stButton {text-align:center;}
+    </style>""", unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    .stButton button {color: pink; padding : 1.25rem 1.75rem;}
 
-# Button for submitting the form
-if st.button("Predict !", on_click=handle_submit):
+    </style>""", unsafe_allow_html=True)
+    if st.button("Predict !", on_click=handle_submit) : 
+            st.session_state.submitted = True
+        
 
-    st.session_state.submitted = True
-    progress_bar()
+if st.session_state.submitted:
+
     # Load the pre-trained model and scalers
     model, feature_scaler, target_scaler, feature_names = load_model_and_scalers()
     
     # Prepare the input data for model prediction
     data = {
-        "TypeOfProperty": 0 if property_type == "House" else 1,
-        "ConstructionYear": year,
-        "NumberOfFacades": nb_facade,
-        "TypeOfSale": 0 if sale_type == "For Sale" else 1,
-        "PostalCode": zip_code,
-        "StateOfBuilding": state_building,
-        "LivingArea": living_area,
-        "SurfaceOfPlot": plot_area,
-        "PEB": peb,
-        "FloodingZone": 1 if flood == "Yes" else 0,
-        "Kitchen": 1 if kitchen == "Yes" else 0,
-        "BathroomCount": bath,
-        "BedroomCount": bed,
-        "ShowerCount": shower,
-        "ToiletCount": toilet,
-        "Garden": 1 if garden == "Yes" else 0,
-        "GardenArea": garden_area,
-        "SwimmingPool": 1 if pool == "Yes" else 0,
-        "Terrace": 1 if terrace == "Yes" else 0,
+        "TypeOfProperty": 0 if st.session_state.property_type == "House" else 1,
+        "ConstructionYear": st.session_state.year,
+        "NumberOfFacades": st.session_state.nb_facade,
+        "TypeOfSale": 0 if st.session_state.sale_type == "For Sale" else 1,
+        "PostalCode": st.session_state.zip_code,
+        "StateOfBuilding": st.session_state.state_building,
+        "LivingArea": st.session_state.living_area,
+        "SurfaceOfPlot": st.session_state.plot_area,
+        "PEB": st.session_state.peb,
+        "FloodingZone": 1 if st.session_state.flood == "Yes" else 0,
+        "Kitchen": 1 if st.session_state.kitchen == "Yes" else 0,
+        "BathroomCount": st.session_state.bath,
+        "BedroomCount": st.session_state.bed,
+        "ShowerCount": st.session_state.shower,
+        "ToiletCount": st.session_state.toilet,
+        "Garden": 1 if st.session_state.garden == "Yes" else 0,
+        "GardenArea": st.session_state.garden_area,
+        "SwimmingPool": 1 if st.session_state.pool == "Yes" else 0,
+        "Terrace": 1 if st.session_state.terrace == "Yes" else 0,
     }
 
-    data = prepare_data_for_prediction(region, province, feature_names, data)
+    data = prepare_data_for_prediction(st.session_state.region, st.session_state.province, feature_names, data)
 
+    # Ensure all values are not None and of correct type
+    data = {k: (0 if v is None else v) for k, v in data.items()}
     # Create a DataFrame for the input data
     df = pd.DataFrame([data], columns=feature_names)
     
@@ -415,5 +434,56 @@ if st.button("Predict !", on_click=handle_submit):
     )
 
     # Display the predicted price
-    st.write(f"Predicted price: {predictions_original.flatten()[0]:.2f} €")
+    st.markdown("<h2 style='text-align:center'>Predicted Price</h2>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("<h5>With the following data : </h5>", unsafe_allow_html=True)
+        st.markdown(f"""
+        <style>
+        .small-text {{
+            line-height: 1.2;
+            margin: 0;
+        }}
+        </style>
+        <div class="small-text">
+            - Type of property: {st.session_state.property_type}<br>
+            - Construction year: {st.session_state.year}<br>
+            - Number of facades: {st.session_state.nb_facade}<br>
+            - Type of sale: {st.session_state.sale_type}<br>
+            - Postal code: {st.session_state.zip_code}<br>
+            - State of building: {st.session_state.state_building}<br>
+            - Living area: {st.session_state.living_area}<br>
+            - Plot area: {st.session_state.plot_area}<br>
+            - PEB value: {st.session_state.peb}<br>
+            - Flooding zone: {st.session_state.flood}<br>
+            - Kitchen installed: {st.session_state.kitchen}<br>
+            - Number of bathrooms: {st.session_state.bath}<br>
+            - Number of bedrooms: {st.session_state.bed}<br>
+            - Number of showers: {st.session_state.shower}<br>
+            - Number of toilets: {st.session_state.toilet}<br>
+            - Garden: {st.session_state.garden}<br>
+            - Garden area: {st.session_state.garden_area}<br>
+            - Swimming pool: {st.session_state.pool}<br>
+            - Terrace: {st.session_state.terrace}<br>
+            - Region: {st.session_state.region}<br>
+            - Province: {st.session_state.province}
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col2:
+        st.image("assets/1_lTWsQr8phKRUVGMjL7SqGg.webp", use_column_width=True)
+        
+    
+    st.markdown(f"<br><h4 style='text-align:center; background : green; border-radius : 1rem 1rem 0rem 1rem'>Predicted price: {predictions_original.flatten()[0]:.2f} €</h4>", unsafe_allow_html=True)
+    st.markdown("""
+                <style>
+            div.stButton {text-align:center;}
+            </style>""", unsafe_allow_html=True)
+    st.markdown("""
+            <style>
+            .stButton button {color: pink; padding : 1.25rem 1.75rem;}
 
+            </style>""", unsafe_allow_html=True)
+
+    st.button("Reset", on_click=st.session_state.clear)
