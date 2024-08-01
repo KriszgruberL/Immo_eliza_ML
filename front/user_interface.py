@@ -6,8 +6,56 @@ import streamlit as st
 import pandas as pd
 import time
 
+st.markdown(
+    """
+    <style>
+    :root {
+        --accent-color: #FF4B4B;
+        --text_color: #FAFAFA;
+    }
+
+    div.stButton {text-align:center;}
+
+    /* Specific styling for buttons */
+    .stButton button {
+        border: 2px solid var(--accent-color);
+        color: var(--accent-color);
+        padding: 0.75rem 1rem;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 2rem !important;
+        margin: 4px 2px;
+        border-radius: 1rem 1rem 0rem 1rem;
+        cursor: pointer;
+    }
+    
+    /* Optional: Hover effect for buttons */
+    .stButton button:hover {
+        background-color: var(--accent-color);
+        color: var(--text_color);
+    }
+    
+    .stButton button:active {
+        box-shadow: inset -5px -5px 10px 0px rgba(28,28,28,0.5);
+    }
+    .title {
+        text-align:center; 
+        border: 2px solid var(--accent-color);
+        border-radius : 1rem 1rem 0rem 1rem
+    }
+    
+    .small {
+        color:deeppink; 
+        font-size:small
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # Title of the app
-st.title("House Price Prediction")
+st.markdown("""<br><h1 class="title" >House Price Prediction</h1>""", unsafe_allow_html=True)
 
 none_features = ["bed", "shower", "toilet", "bath", "garden_area", "year", "nb_facade", "zip_code", "kitchen", "state_building", "living_area", "plot_area", "flood"]
 empty_feature = ["property_type", "sale_type", "garden"]
@@ -133,7 +181,7 @@ if not st.session_state.submitted:
                 index=None,
                 key="region",
             )
-            st.markdown("<p style='color:pink; font-size:small'>*Required field</p>", unsafe_allow_html=True)
+            st.markdown("""<p class="small">*Required field</p>""", unsafe_allow_html=True)
         with col2:
             if st.session_state.region == "Brussels":
                 province = st.selectbox(
@@ -169,7 +217,7 @@ if not st.session_state.submitted:
                     key="province",
                 )
             if region: 
-                st.markdown("<p style='color:pink; font-size:small'>*Required fields</p>", unsafe_allow_html=True)
+                st.markdown("""<p class="small">*Required field</p>""", unsafe_allow_html=True)
         st.divider()
 
         col1, col2 = st.columns(2)
@@ -181,7 +229,7 @@ if not st.session_state.submitted:
                 key="type_property",
                 horizontal=True,
             )
-            st.markdown("<p style='color:pink; font-size:small'>*Required field</p>", unsafe_allow_html=True)
+            st.markdown("""<p class="small">*Required field</p>""", unsafe_allow_html=True)
             
             year = st.number_input(
                 "Enter the construction year (1600 - 2040)",
@@ -209,7 +257,7 @@ if not st.session_state.submitted:
                 key="type_sale",
                 horizontal=True,
             )
-            st.markdown("<p style='color:pink; font-size:small'>*Required field</p>", unsafe_allow_html=True)
+            st.markdown("""<p class="small">*Required field</p>""", unsafe_allow_html=True)
             zip_code = st.number_input(
                 "Enter the postal code",
                 min_value=1000,
@@ -226,7 +274,7 @@ if not st.session_state.submitted:
                 format_func=state_stringify,
                 help="Select the state of the building - Required field",
             )
-            st.markdown("<p style='color:pink; font-size:small'>*Required field</p>", unsafe_allow_html=True)
+            st.markdown("""<p class="small">*Required field</p>""", unsafe_allow_html=True)
         st.divider()
         living_area = st.number_input(
             "Enter the living area (in m²)*",
@@ -333,16 +381,6 @@ if not st.session_state.submitted:
             horizontal=True,
         )
 
-    # Button for submitting the form
-    st.markdown("""
-    <style>
-    div.stButton {text-align:center;}
-    </style>""", unsafe_allow_html=True)
-    st.markdown("""
-    <style>
-    .stButton button {color: pink; padding : 1.25rem 1.75rem;}
-
-    </style>""", unsafe_allow_html=True)
     if st.button("Predict !", on_click=handle_submit) : 
             st.session_state.submitted = True
         
@@ -472,18 +510,10 @@ if st.session_state.submitted:
         """, unsafe_allow_html=True)
         
     with col2:
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.image("assets/1_lTWsQr8phKRUVGMjL7SqGg.webp", use_column_width=True)
         
     
-    st.markdown(f"<br><h4 style='text-align:center; background : green; border-radius : 1rem 1rem 0rem 1rem'>Predicted price: {predictions_original.flatten()[0]:.2f} €</h4>", unsafe_allow_html=True)
-    st.markdown("""
-                <style>
-            div.stButton {text-align:center;}
-            </style>""", unsafe_allow_html=True)
-    st.markdown("""
-            <style>
-            .stButton button {color: pink; padding : 1.25rem 1.75rem;}
-
-            </style>""", unsafe_allow_html=True)
+    st.markdown(f"<br><h4 style='text-align:center; background : var(--accent-color); border-radius : 1rem 1rem 0rem 1rem'>Predicted price: {predictions_original.flatten()[0]:.2f} €</h4>", unsafe_allow_html=True)
 
     st.button("Reset", on_click=st.session_state.clear)
