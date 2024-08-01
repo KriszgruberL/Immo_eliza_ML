@@ -201,10 +201,6 @@ def main() -> None:
     pipeline = preprocess_pipeline()
     preprocessed_df = pipeline.fit_transform(df)
     
-    preprocessed_df.to_csv("data/preprocessed_df.csv", index=False)
-
-    print(preprocessed_df.dtypes)
-    
     # Save the preprocessed data
     with open("data/preprocessed_df.pkl", "wb") as f:
         pickle.dump(preprocessed_df, f)
