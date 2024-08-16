@@ -19,10 +19,7 @@
 2. [Data Analysis](https://github.com/KriszgruberL/Immo_Eliza_Data_Analysis)
 3. [Preprocessing and Machine Learning](https://github.com/KriszgruberL/Immo_eliza_ML)
 4. [API and Deployment](https://github.com/KriszgruberL/Immo_Eliza_front)
-
-
-## BeCode red line project - Immo_Eliza 1/4
-
+   
 ## 📚 Overview
 
 This project focuses on preprocessing and analyzing real estate data to predict property prices. The preprocessing pipeline includes data filtering, encoding, imputations, and scaling to prepare the data for machine learning models. The main model used is a RandomForestRegressor, but the pipeline is designed to be flexible for other regressors as well.
